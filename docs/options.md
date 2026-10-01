@@ -78,8 +78,8 @@ These change how SWMM reads the rest of the `.inp`, and the CLI converts nothing
 
 | Option | Values | Default | |
 |---|---|---|---|
-| `FLOW_UNITS` | `CFS`, `GPM`, `MGD`, `CMS`, `LPS`, `MLD` | `CFS` | also switches lengths to feet (`CFS`, `GPM`, `MGD`) or meters |
-| `INFILTRATION` | `HORTON`, `MODIFIED_HORTON`, `GREEN_AMPT`, `MODIFIED_GREEN_AMPT`, `CURVE_NUMBER` | `HORTON` | each method reads different `[INFILTRATION]` parameters |
+| `FLOW_UNITS` | `CFS`, `GPM`, `MGD`, `CMS`, `LPS`, `MLD` | `CFS` | also switches lengths to feet (`CFS`, `GPM`, `MGD`) or meters; see [flow_units.md](flow_units.md) |
+| `INFILTRATION` | `HORTON`, `MODIFIED_HORTON`, `GREEN_AMPT`, `MODIFIED_GREEN_AMPT`, `CURVE_NUMBER` | `HORTON` | each method reads different `[INFILTRATION]` parameters; see [infiltration.md](infiltration.md) |
 | `LINK_OFFSETS` | `DEPTH`, `ELEVATION` | `DEPTH` | how the links' offsets are read |
 | `TEMPDIR` | folder | the system's | inside the container |
 | `COMPATIBILITY` | `3`, `4`, `5` | `4` | read but not used by SWMM 5.2 |
