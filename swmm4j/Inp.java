@@ -1,5 +1,6 @@
 package swmm4j;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -14,7 +15,7 @@ public final class Inp {
 
 	static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.ROOT);
 
-	static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT);
+	static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ROOT);
 
 	private final Map<String, List<String>> sections = new LinkedHashMap<>();
 
@@ -45,6 +46,9 @@ public final class Inp {
 	}
 
 	void set(String section, Map<String, String> values) {
+		if (values.isEmpty()) {
+			return;
+		}
 		List<String> lines = sectionOrAdd(section);
 		lines.removeIf((line) -> values.containsKey(firstToken(line).toUpperCase(Locale.ROOT)));
 		List<String> added = new ArrayList<>();
@@ -70,6 +74,29 @@ public final class Inp {
 		}
 		return LocalDate.parse(date, DateTimeFormatter.ofPattern("M/d/yyyy"))
 				.atTime(LocalTime.parse(time, DateTimeFormatter.ofPattern("H:mm[:ss]")));
+	}
+
+	Duration reportStep() {
+		String value = option("REPORT_STEP");
+		return value == null ? Duration.ofMinutes(15) : Duration.ofMillis(Math.round(seconds(value, 3600) * 1000));
+	}
+
+	static double seconds(String value, double unitSeconds) {
+		String v = value.strip();
+		try {
+			if (!v.contains(":")) {
+				return Double.parseDouble(v) * unitSeconds;
+			}
+			String[] p = v.split(":");
+			return Integer.parseInt(p[0]) * 3600 + Integer.parseInt(p[1]) * 60 + (p.length > 2 ? Double.parseDouble(p[2]) : 0);
+		} catch (NumberFormatException | ArrayIndexOutOfBoundsException ex) {
+			throw new IllegalArgumentException("Invalid time step " + value + " (expected a number or HH:MM:SS)");
+		}
+	}
+
+	static String clock(Duration d) {
+		long s = d.toSeconds();
+		return String.format(Locale.ROOT, "%02d:%02d:%02d", s / 3600, s / 60 % 60, s % 60);
 	}
 
 	@Override

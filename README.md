@@ -23,9 +23,9 @@ The current folder is mounted at `/work`: `--inp` and `--csv` are read from it a
 ```
 --inp FILE            network (required)
 --csv FILE            inflows (series,timestamp,flow) replacing the [INFLOWS] series
---start, --end TIME   period, e.g. 2026-03-23T06:00 (default: the .inp's)
---report-step MIN     5, 15 or 60 (default 15)
---routing-step S      1 to 60 (default 30)
+--start, --end TIME   start and end of the simulation, e.g. 2026-03-23T06:00 (default: the .inp's)
+--report-step STEP    minutes or HH:MM:SS, e.g. 15 or 00:00:30 (default: the .inp's)
+--routing-step STEP   seconds or HH:MM:SS, e.g. 0.5 or 00:00:20 (default: the .inp's)
 --flow-scale X        multiplies every inflow and dry weather flow (default 1)
 --rain-scale X        multiplies the rain gages' time series (default 1)
 --option KEY=VALUE    sets an [OPTIONS] line, e.g. IGNORE_RAINFALL=YES (repeatable)
@@ -35,6 +35,8 @@ The current folder is mounted at `/work`: `--inp` and `--csv` are read from it a
 ```
 
 `--csv` needs an `[INFLOWS]` section in the `.inp`, `--flow-scale` an `[INFLOWS]` or `[DWF]` one and `--rain-scale` a `[RAINGAGES]` one. The CSV's flows are in the `.inp`'s `FLOW_UNITS` (CFS in the EPA examples; `Example6` is `Example3` converted to meters and m³/s; `Example7` is an illustrative model of Lisbon's Monsanto–Santa Apolónia drainage tunnel, with its alignment from the city's `PGDL_tracado` map service and approximate elevations and inflows).
+
+Every flag left out keeps the `.inp`'s value; only the flags passed are written to the `.inp`.
 
 `--option` takes any SWMM option, e.g. `FLOW_ROUTING=KINWAVE`, `ALLOW_PONDING=YES`, `THREADS=4` or `IGNORE_ROUTING=YES`; the period and steps stay with their own flags. See [docs/options.md](docs/options.md) for all of them.
 

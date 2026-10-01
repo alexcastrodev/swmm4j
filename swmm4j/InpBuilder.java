@@ -26,7 +26,8 @@ public final class InpBuilder {
 		List<String> inflows = inp.section("INFLOWS");
 		Set<String> series = inflows == null ? Set.of() : flowSeries(inflows);
 
-		inp.set("OPTIONS", options(scenario));
+		inp.set("OPTIONS", scenario.overrides());
+		inp.set("OPTIONS", scenario.options());
 		if (scenario.flowScale() != 1) {
 			scaleFlows(inp, scenario.flowScale());
 		}
@@ -54,17 +55,6 @@ public final class InpBuilder {
 		if (inp.section("RAINGAGES") == null && scenario.rainScale() != 1) {
 			throw new IllegalArgumentException("The .inp has no [RAINGAGES] section to scale");
 		}
-	}
-
-	private static Map<String, String> options(Scenario s) {
-		Map<String, String> options = ordered("START_DATE", Inp.DATE.format(s.start()), "START_TIME",
-				Inp.TIME.format(s.start()), "REPORT_START_DATE", Inp.DATE.format(s.start()), "REPORT_START_TIME",
-				Inp.TIME.format(s.start()), "END_DATE", Inp.DATE.format(s.end()), "END_TIME", Inp.TIME.format(s.end()),
-				"REPORT_STEP",
-				String.format(Locale.ROOT, "%02d:%02d:00", s.reportStepMin() / 60, s.reportStepMin() % 60),
-				"ROUTING_STEP", Integer.toString(s.routingStepS()));
-		options.putAll(s.options());
-		return options;
 	}
 
 	private static Map<String, String> ordered(String... keyValues) {

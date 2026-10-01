@@ -13,7 +13,6 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import swmm4j.Inp;
 import swmm4j.InpBuilder;
 import swmm4j.Scenario;
 import swmm4j.Swmm;
@@ -22,7 +21,11 @@ import swmm4j.Swmm;
 		description = "Runs an EPA SWMM .inp and prints the network's state at every report step.")
 class Main implements Callable<Integer> {
 
-	static final DateTimeFormatter CLOCK = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+	static final DateTimeFormatter MINUTES = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+	static final DateTimeFormatter SECONDS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+	DateTimeFormatter clock = MINUTES;
 
 	@Option(names = { "-h", "--help" }, usageHelp = true, description = "shows this help")
 	boolean help;
@@ -38,16 +41,16 @@ class Main implements Callable<Integer> {
 	@Option(names = "--start", paramLabel = "TIME", description = "e.g. 2026-03-23T06:00 (default: the .inp's)")
 	LocalDateTime start;
 
-	@Option(names = "--end", paramLabel = "TIME", description = "default: the .inp's")
+	@Option(names = "--end", paramLabel = "TIME", description = "end of the simulation (default: the .inp's)")
 	LocalDateTime end;
 
-	@Option(names = "--report-step", paramLabel = "MIN", defaultValue = "15",
-			description = "5, 15 or 60 (default ${DEFAULT-VALUE})")
-	int reportStep;
+	@Option(names = "--report-step", paramLabel = "STEP",
+			description = "minutes or HH:MM:SS, e.g. 15 or 00:00:30 (default: the .inp's)")
+	String reportStep;
 
-	@Option(names = "--routing-step", paramLabel = "S", defaultValue = "30",
-			description = "1 to 60 (default ${DEFAULT-VALUE})")
-	int routingStep;
+	@Option(names = "--routing-step", paramLabel = "STEP",
+			description = "seconds or HH:MM:SS, e.g. 0.5 or 00:00:20 (default: the .inp's)")
+	String routingStep;
 
 	@Option(names = "--flow-scale", paramLabel = "X", defaultValue = "1",
 			description = "multiplies every inflow and dry weather flow (default ${DEFAULT-VALUE})")
@@ -87,6 +90,7 @@ class Main implements Callable<Integer> {
 		String inpText = Files.readString(inp);
 		String csvText = csv == null ? null : Files.readString(csv);
 		Scenario scenario = scenario(inpText);
+		clock = scenario.reportStep().toSecondsPart() == 0 && scenario.start().getSecond() == 0 ? MINUTES : SECONDS;
 
 		String built = InpBuilder.build(inpText, csvText, scenario, ZoneId.systemDefault());
 
@@ -99,27 +103,24 @@ class Main implements Callable<Integer> {
 	}
 
 	Scenario scenario(String inpText) {
-		Inp parsed = Inp.parse(inpText);
-		LocalDateTime from = start != null ? start : parsed.dateTime("START");
-		LocalDateTime to = end != null ? end : parsed.dateTime("END");
 		Map<String, String> inpOptions = new HashMap<>();
 		options.forEach((key, value) -> inpOptions.put(key.strip().toUpperCase(Locale.ROOT), value.strip()));
-		return new Scenario(from, to, reportStep, routingStep, flowScale, rainScale, inpOptions);
+		return Scenario.resolve(inpText, start, end, reportStep, routingStep, flowScale, rainScale, inpOptions);
 	}
 
 	Swmm.Result simulate(String inpText, Scenario scenario) throws IOException {
 		return Swmm.run(inpText, scenario, nodes, lib, dir, (step) -> System.out.println(line(step)));
 	}
 
-	static String summary(Scenario s) {
-		return String.format("%s → %s, report every %d min, flow ×%s, rain ×%s%s", CLOCK.format(s.start()),
-				CLOCK.format(s.end()), s.reportStepMin(), s.flowScale(), s.rainScale(),
+	String summary(Scenario s) {
+		return String.format("%s → %s, report every %s, flow ×%s, rain ×%s%s", clock.format(s.start()),
+				clock.format(s.end()), s.reportStep().toString().substring(2).toLowerCase(Locale.ROOT), s.flowScale(), s.rainScale(),
 				s.options().isEmpty() ? "" : ", " + s.options());
 	}
 
-	static String line(Swmm.Step step) {
+	String line(Swmm.Step step) {
 		StringBuilder out = new StringBuilder(
-				String.format(Locale.ROOT, "%s %4.0f%%", CLOCK.format(step.time()), step.progress() * 100));
+				String.format(Locale.ROOT, "%s %4.0f%%", clock.format(step.time()), step.progress() * 100));
 		List<Swmm.Node> flooding = step.flooding();
 		if (flooding.isEmpty()) {
 			out.append("  no flooding");

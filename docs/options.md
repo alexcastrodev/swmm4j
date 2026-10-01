@@ -11,14 +11,14 @@ These are the options SWMM 5.2.4 reads (`project_readOption` in its `project.c`)
 
 ## Set by their own flags
 
-`--option` refuses these:
+`--option` refuses these. Without their flag the `.inp`'s value is kept:
 
 | Option | Flag |
 |---|---|
-| `START_DATE`, `START_TIME`, `REPORT_START_DATE`, `REPORT_START_TIME` | `--start` |
+| `START_DATE`, `START_TIME`, `REPORT_START_DATE`, `REPORT_START_TIME` | `--start` (the report starts with the simulation) |
 | `END_DATE`, `END_TIME` | `--end` |
-| `REPORT_STEP` | `--report-step` |
-| `ROUTING_STEP` | `--routing-step` |
+| `REPORT_STEP` | `--report-step`, in minutes or `HH:MM:SS` |
+| `ROUTING_STEP` | `--routing-step`, in seconds or `HH:MM:SS` |
 
 ## Processes
 

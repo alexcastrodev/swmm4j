@@ -48,7 +48,7 @@ public final class Swmm {
 			List<String> names = swmm.nodeNames();
 			List<Integer> followed = swmm.nodeIndexes(follow);
 			double days = scenario.days();
-			double reportDays = scenario.reportStepMin() / 1440.0;
+			double reportDays = scenario.reportStep().toMillis() / 86_400_000.0;
 			int reported = 0;
 			double elapsed;
 			do {
@@ -66,7 +66,7 @@ public final class Swmm {
 	}
 
 	static LocalDateTime reportTime(Scenario scenario, int reported) {
-		return scenario.start().plusMinutes((long) reported * scenario.reportStepMin());
+		return scenario.start().plus(scenario.reportStep().multipliedBy(reported));
 	}
 
 	static final class Session implements AutoCloseable {
