@@ -1,0 +1,132 @@
+[TITLE]
+Example 7 - Lisboa, Tunel Monsanto-Santa Apolonia (TMSA), illustrative
+Alignment: CML ArcGIS service PGDL_tracado; diameter 5.5 m and capacity > 160 m3/s from public PGDL sources
+Ground and invert elevations, 0.5% slope and inflows are approximate, not survey data
+
+[OPTIONS]
+FLOW_UNITS           CMS
+INFILTRATION         HORTON
+FLOW_ROUTING         DYNWAVE
+LINK_OFFSETS         DEPTH
+START_DATE           01/01/2026
+START_TIME           00:00:00
+REPORT_START_DATE    01/01/2026
+REPORT_START_TIME    00:00:00
+END_DATE             01/01/2026
+END_TIME             06:00:00
+REPORT_STEP          00:05:00
+ROUTING_STEP         00:00:30
+ALLOW_PONDING        NO
+INERTIAL_DAMPING     PARTIAL
+VARIABLE_STEP        0.75
+NORMAL_FLOW_LIMITED  BOTH
+
+[JUNCTIONS]
+;;Name           Elevation  MaxDepth   InitDepth  SurDepth   Aponded
+CAMPOLIDE        23.18      61.82      0          0          0
+LIBERDADE        13.40      31.60      0          0          0
+SANTA_MARTA      12.06      35.94      0          0          0
+ALMIRANTE_REIS   7.50       22.50      0          0          0
+
+[OUTFALLS]
+;;Name           Elevation  Type       Stage Data       Gated
+SANTA_APOLONIA   1.00       FREE                        NO
+
+[CONDUITS]
+;;Name           From Node        To Node          Length     Roughness  InOffset   OutOffset  InitFlow   MaxFlow
+TMSA_1           CAMPOLIDE        LIBERDADE        1956.9     0.013      0          0          0          0
+TMSA_2           LIBERDADE        SANTA_MARTA      267.2      0.013      0          0          0          0
+TMSA_3           SANTA_MARTA      ALMIRANTE_REIS   913.0      0.013      0          0          0          0
+TMSA_4           ALMIRANTE_REIS   SANTA_APOLONIA   1299.9     0.013      0          0          0          0
+
+[XSECTIONS]
+;;Link           Shape        Geom1      Geom2      Geom3      Geom4      Barrels
+TMSA_1           CIRCULAR     5.5        0          0          0          1
+TMSA_2           CIRCULAR     5.5        0          0          0          1
+TMSA_3           CIRCULAR     5.5        0          0          0          1
+TMSA_4           CIRCULAR     5.5        0          0          0          1
+
+[INFLOWS]
+;;Node           Constituent      Time Series      Type     Mfactor  Sfactor
+CAMPOLIDE        FLOW             IN_CAMPOLIDE     FLOW     1.0      1.0
+LIBERDADE        FLOW             IN_LIBERDADE     FLOW     1.0      1.0
+SANTA_MARTA      FLOW             IN_SANTA_MARTA   FLOW     1.0      1.0
+ALMIRANTE_REIS   FLOW             IN_ALMIRANTE_REIS FLOW     1.0      1.0
+
+[TIMESERIES]
+;;Name           Date       Time       Value
+IN_CAMPOLIDE     01/01/2026 00:00 0
+IN_CAMPOLIDE     01/01/2026 06:00 0
+IN_LIBERDADE     01/01/2026 00:00 0
+IN_LIBERDADE     01/01/2026 06:00 0
+IN_SANTA_MARTA   01/01/2026 00:00 0
+IN_SANTA_MARTA   01/01/2026 06:00 0
+IN_ALMIRANTE_REIS 01/01/2026 00:00 0
+IN_ALMIRANTE_REIS 01/01/2026 06:00 0
+
+[REPORT]
+INPUT      NO
+CONTROLS   NO
+NODES ALL
+LINKS ALL
+
+[MAP]
+DIMENSIONS -90000.5 -105812.8 -86094.9 -103006.9
+Units      Meters
+
+[COORDINATES]
+;;Node           X-Coord            Y-Coord
+CAMPOLIDE        -89800.479         -103206.877
+LIBERDADE        -88296.981         -104418.584
+SANTA_MARTA      -88034.832         -104468.681
+ALMIRANTE_REIS   -87143.033         -104655.653
+SANTA_APOLONIA   -86294.874         -105612.788
+
+[VERTICES]
+;;Link           X-Coord            Y-Coord
+TMSA_1           -89737.271         -103264.923
+TMSA_1           -89673.995         -103327.612
+TMSA_1           -89610.719         -103390.301
+TMSA_1           -89547.443         -103452.990
+TMSA_1           -89484.166         -103515.679
+TMSA_1           -89420.890         -103578.368
+TMSA_1           -89357.614         -103641.057
+TMSA_1           -89294.338         -103703.746
+TMSA_1           -89230.699         -103766.065
+TMSA_1           -89166.860         -103828.181
+TMSA_1           -89103.021         -103890.296
+TMSA_1           -89039.182         -103952.412
+TMSA_1           -88975.342         -104014.527
+TMSA_1           -88911.503         -104076.643
+TMSA_1           -88847.664         -104138.759
+TMSA_1           -88780.945         -104197.338
+TMSA_1           -88705.593         -104244.809
+TMSA_1           -88627.689         -104287.961
+TMSA_1           -88547.828         -104327.350
+TMSA_1           -88465.884         -104362.235
+TMSA_1           -88382.199         -104392.708
+TMSA_2           -88210.562         -104440.106
+TMSA_2           -88123.100         -104456.893
+TMSA_3           -87946.291         -104478.378
+TMSA_3           -87857.992         -104490.066
+TMSA_3           -87769.936         -104503.467
+TMSA_3           -87682.193         -104518.783
+TMSA_3           -87594.783         -104535.895
+TMSA_3           -87507.739         -104554.783
+TMSA_3           -87421.131         -104575.576
+TMSA_3           -87334.943         -104598.047
+TMSA_3           -87249.278         -104622.441
+TMSA_4           -87061.612         -104691.644
+TMSA_4           -86984.686         -104736.444
+TMSA_4           -86913.187         -104789.481
+TMSA_4           -86848.096         -104850.209
+TMSA_4           -86790.081         -104917.730
+TMSA_4           -86738.810         -104990.550
+TMSA_4           -86688.495         -105064.049
+TMSA_4           -86638.180         -105137.549
+TMSA_4           -86587.865         -105211.048
+TMSA_4           -86537.550         -105284.548
+TMSA_4           -86487.235         -105358.047
+TMSA_4           -86436.920         -105431.547
+TMSA_4           -86385.723         -105504.393
+TMSA_4           -86330.092         -105573.956
