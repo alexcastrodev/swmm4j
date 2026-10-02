@@ -16,6 +16,7 @@ import picocli.CommandLine.Option;
 import swmm4j.InpBuilder;
 import swmm4j.Scenario;
 import swmm4j.Swmm;
+import swmm4j.SwmmOutput;
 
 @Command(name = "swmm-cli", sortOptions = false, usageHelpWidth = 100,
 		description = "Runs an EPA SWMM .inp and prints the network's state at every report step.")
@@ -30,9 +31,12 @@ class Main implements Callable<Integer> {
 	@Option(names = { "-h", "--help" }, usageHelp = true, description = "shows this help")
 	boolean help;
 
-	@Option(names = "--inp", required = true, paramLabel = "FILE",
-			description = "network (relative to the mounted folder)")
+	@Option(names = "--inp", paramLabel = "FILE", description = "network (relative to the mounted folder)")
 	Path inp;
+
+	@Option(names = "--read", paramLabel = "FILE.out",
+			description = "only turn an existing SWMM output into JSON (no run; --inp not needed)")
+	Path read;
 
 	@Option(names = "--csv", paramLabel = "FILE",
 			description = "inflows (series,timestamp,flow) replacing the [INFLOWS] series")
@@ -71,8 +75,13 @@ class Main implements Callable<Integer> {
 			description = "libswmm5 (default $SWMM_LIB)")
 	Path lib;
 
+	@Option(names = "--output-lib", paramLabel = "FILE",
+			defaultValue = "${env:SWMM_OUTPUT_LIB:-/opt/swmm/libswmm-output.so}",
+			description = "libswmm-output, EPA's reader of the .out (default $SWMM_OUTPUT_LIB)")
+	Path outputLib;
+
 	@Option(names = "--dir", paramLabel = "DIR", defaultValue = "out",
-			description = "where run.inp, run.rpt and run.out go (default ${DEFAULT-VALUE})")
+			description = "where run.inp, run.rpt, run.out and run.json go (default ${DEFAULT-VALUE})")
 	Path dir;
 
 	public static void main(String[] args) {
@@ -87,6 +96,15 @@ class Main implements Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		if (read != null) {
+			Path name = read.getFileName();
+			Path json = dir.resolve(name.toString().replaceFirst("\\.out$", "") + ".json");
+			System.out.println(written(SwmmOutput.toJson(read, outputLib, json)));
+			return 0;
+		}
+		if (inp == null) {
+			throw new IllegalArgumentException("Missing --inp (or --read to only turn a .out into JSON)");
+		}
 		String inpText = Files.readString(inp);
 		String csvText = csv == null ? null : Files.readString(csv);
 		Scenario scenario = scenario(inpText);
@@ -99,7 +117,13 @@ class Main implements Callable<Integer> {
 		System.out.printf("SWMM %s · flow continuity error %.2f %% · %d warnings%n", result.version(),
 				result.continuityError(), result.warnings());
 		System.out.println("report: " + result.report() + " · output: " + result.output());
+		System.out.println(written(SwmmOutput.toJson(result.output(), outputLib, dir.resolve("run.json"))));
 		return 0;
+	}
+
+	static String written(SwmmOutput.Written w) {
+		return String.format("json: %s · SWMM %s · %d periods · %d nodes · %d links", w.json(), w.version(), w.periods(),
+				w.nodes(), w.links());
 	}
 
 	Scenario scenario(String inpText) {

@@ -1,0 +1,9 @@
+# only pom.xml, src and examples go into the image
+out/
+target/
+.idea/
+*.iml
+.DS_Store
+SWMM.pdf
+docs/
+.github/
